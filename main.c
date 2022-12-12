@@ -1,3 +1,7 @@
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include "read_file.h"
@@ -15,15 +19,14 @@ int main(int argc, char **argv){
    FILE *f, *k;
    uint64_t *input, *key, res, d;
 
-   if(argc < 3){
+   if(argc < 2){
       usage();
 
       return -1;
    }
 
-   while((c = getopt(argc, argv, "hv:")) != -1){
+   while((c = getopt(argc, argv, "v:")) != -1){
       switch(c){
-         case 'h': usage(); return -2;
          case 'v': v = 1; break; 
       }
    }
