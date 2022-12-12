@@ -20,6 +20,7 @@ $(EXEC): $(OBJS)
 	gcc -o ./obj/base64.o -c ./src/base64.c
 
 ./obj/manipulate_string.o: ./src/manipulate_string.c
+	mkdir ./obj
 	gcc -o ./obj/manipulate_string.o -c ./src/manipulate_string.c
 
 clean:
