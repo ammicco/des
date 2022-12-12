@@ -9,6 +9,8 @@ You also can run with "-v" option for verbose output that displays:
  - every round left and right half of data 
  - every round subkey
 
+Use this code for create your own project and have fun! 
+
 ## Usage: 
 ``` bash 
     $ make
@@ -72,3 +74,6 @@ To clean:
       Round 16: left - 0x7ad5913b, right - 0xb0803165, roundkey - 0xf0bc26a849c0
       des:            0x1f411241ddcb52b4 (text: AA��R� -- base64: H0ESQd3LUrQ=)
 ```
+
+### Info
+For more info on my libraries check out my gh profile. 
