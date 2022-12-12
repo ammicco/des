@@ -1,6 +1,7 @@
-#include "./../include/manipulate_string.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "./../include/manipulate_string.h"
 
 int count_char(char *str, char sig){
     int i, counter = 0, len = strlen(str);

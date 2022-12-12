@@ -134,24 +134,40 @@ uint32_t pbox(uint32_t data){
     return permutation((uint64_t) data << 32, (int *) pbox1, 64, "msb") >> 32;
 }
 
-/* return 64 bit value swpped left and right half of data */
-uint64_t l_r_swap(uint32_t l, uint32_t r){
-    uint64_t out = 0;
-
-    out |= r;
-    out |= (uint64_t) ((uint64_t) l << 32);
-    
-    return out;
-}
-
 /* return 64 bit value after final permutation */
 uint64_t final_permutation(uint64_t data){
     return permutation(data, (int *) final_permutation_table, 64, "msb");
 }
 
+/* return a 64 bit value represent a random key */
+uint64_t generate_random_key(char *file){
+    int i, j = 0;
+    char *s = (char *) malloc(sizeof(char) * (8 + 1));
+    uint8_t tmp;
+    uint64_t key = random() | ((uint64_t) random() << 32);
+    FILE *f = fopen(file, "w");
+
+    if(!s || !f){
+        fputs("malloc() or fopen() error in function generate_random_key()!\nExit.\n", stderr);
+    }
+
+    for(i = 7; i >= 0; i--){
+        tmp = key >> (8 * i);
+
+        s[j] = (char) tmp;
+        j++;
+    }
+
+    fputs(s, f);
+    printf("Generated key: 0x%lx (%s)\n", key, s);
+    free(s);
+
+    return key;
+}
+
 /* use all the previus function to encode with des */
-uint64_t des(uint64_t data, uint64_t key, int verbose){
-    int i, j = 0; 
+uint64_t des(uint64_t data, uint64_t key, int verbose, int type){
+    int i, j = 0, ik; 
     char *s = (char *) malloc(sizeof(char) * (8 + 1));
     char *k = (char *) malloc(sizeof(char) * (8 + 1));
     uint8_t tmps, tmpk;
@@ -170,26 +186,31 @@ uint64_t des(uint64_t data, uint64_t key, int verbose){
         k[j] = (char) tmpk;
         j++;
     }
-        
-    fprintf(stderr, "Plain text:\t0x%lx (%s)", data, s);
+    
+    printf("input:\t\t0x%lx (%s)\n", data, s);
 
     if(verbose){
-        fprintf(stderr, "\nKey:\t\t0x%lx (%s)", key, k);
+        fprintf(stderr, "Key:\t\t0x%lx (%s)\n", key, k);
     }
 
-    fprintf(stderr, "\n");
-
     free(s);
+    free(k);
 
     data = initial_permutation(data);
     roundk = subkeys_generate(key_reduce(key));
+
+    if(type){
+        ik = 0;
+    }else{
+        ik = 15;
+    }
 
     for(i = 0; i < 15; i++){
         r = (uint32_t) (data & 0xffffffff);
         l = (uint32_t) ((data >> 32) & 0xffffffff);
         tmpr = r;
 
-        r = (pbox(sbox((roundk[i] ^ expansion(r)))) ^ l);
+        r = (pbox(sbox((roundk[ik] ^ expansion(r)))) ^ l);
         l = tmpr;
 
         data = 0;
@@ -204,13 +225,19 @@ uint64_t des(uint64_t data, uint64_t key, int verbose){
 
         data |= r;
         data |= (uint64_t) ((uint64_t) l << 32);
+
+        if(type){
+            ik++;
+        }else{
+            ik--;
+        }
     }
 
     r = (uint32_t) (data & 0xffffffff);
     l = (uint32_t) ((data >> 32) & 0xffffffff);
     tmpr = r;
     
-    l = (pbox(sbox(roundk[15] ^ expansion(r))) ^ l); 
+    l = (pbox(sbox(roundk[ik] ^ expansion(r))) ^ l); 
     r = tmpr;
 
     f |= r;

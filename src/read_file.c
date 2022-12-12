@@ -1,6 +1,7 @@
-#include "./../include/read_file.h"
 #include <stdint.h>
 #include <stdlib.h>
+
+#include "./../include/read_file.h"
 
 void *readbit(FILE *f, size_t bit){
     int i, len;

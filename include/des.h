@@ -3,6 +3,9 @@
 
 #include "bit_permutation.h"
 
+#define DES_ENC 1
+#define DES_DEC 0
+
 static const int initial_permutation_table[] = {
     57, 49, 41, 33, 25, 17,  9, 1, 
     59, 51, 43, 35, 27, 19, 11, 3,
@@ -130,24 +133,24 @@ static const int final_permutation_table[] = {
     32, 0, 40,  8, 48, 16, 56, 24, 
 };
 
-uint64_t initial_permutation(uint64_t);
+uint64_t initial_permutation(uint64_t _input_data);
 
-uint64_t key_permutation(uint64_t);
+uint64_t key_permutation(uint64_t __input_key);
 
-uint64_t key_reduce(uint64_t);
+uint64_t key_reduce(uint64_t __key);
 
-uint64_t *subkeys_generate(uint64_t);
+uint64_t *subkeys_generate(uint64_t __key);
 
-uint64_t key_compression(uint64_t);
+uint64_t key_compression(uint64_t __key);
 
-uint64_t expansion(uint32_t);
+uint64_t expansion(uint32_t __rdata);
 
-uint32_t sbox(uint64_t);
+uint32_t sbox(uint64_t __rdata);
 
-uint32_t pbox(uint32_t);
+uint32_t pbox(uint32_t __rdata);
 
-uint64_t l_r_swap(uint32_t, uint32_t);
+uint64_t final_permutation(uint64_t __edata);
 
-uint64_t final_permutation(uint64_t);
+uint64_t generate_random_key(char *__path);
 
-uint64_t des(uint64_t, uint64_t, int);
+uint64_t des(uint64_t __input_data, uint64_t __key, int __verbose, int __mode);

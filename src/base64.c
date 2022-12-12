@@ -1,7 +1,8 @@
-#include "./../include/base64.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "./../include/base64.h"
 
 char *encode(const unsigned char *s, size_t byte){
     int l, i, diff;
