@@ -24,5 +24,5 @@ $(EXEC): $(OBJS)
 	gcc -o ./obj/manipulate_string.o -c ./src/manipulate_string.c
 
 clean:
-	rmdir obj
 	rm ./obj/*.o main
+	rmdir obj
