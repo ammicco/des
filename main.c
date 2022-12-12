@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "read_file.h"
-#include "des.h"
-#include "base64.h"
+#include "./include/read_file.h"
+#include "./include/des.h"
+#include "./include/base64.h"
 
 static void usage(){
    fputs("Usage: ./des [-v] \"data file\" \"key file\"\n", stderr);

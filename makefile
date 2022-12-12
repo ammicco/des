@@ -1,26 +1,26 @@
-OBJS = manipulate_string.o base64.o bit_permutation.o read_file.o des.o main.o
+OBJS = ./obj/manipulate_string.o ./obj/base64.o ./obj/bit_permutation.o ./obj/read_file.o ./obj/des.o ./obj/main.o
 EXEC = main
 
 $(EXEC): $(OBJS)
 	gcc -o $(EXEC) $(OBJS)
 	
-$(EXEC).o: main.c
-	gcc -c main.c
+./obj/$(EXEC).o: main.c
+	gcc -o ./obj/main.o -c main.c
 	
-des.o: des.c
-	gcc -c des.c
+./obj/des.o: ./src/des.c
+	gcc -o ./obj/des.o -c ./src/des.c
 	
-read_file.o: read_file.c
-	gcc -c read_file.c
+./obj/read_file.o: ./src/read_file.c
+	gcc -o ./obj/read_file.o -c ./src/read_file.c
 
-bit_permutation.o: bit_permutation.c
-	gcc -c bit_permutation.c
+./obj/bit_permutation.o: ./src/bit_permutation.c
+	gcc -o ./obj/bit_permutation.o -c ./src/bit_permutation.c
 	
-base64.o: base64.c
-	gcc -c base64.c
+./obj/base64.o: ./src/base64.c
+	gcc -o ./obj/base64.o -c ./src/base64.c
 
-manipulate_string.o: manipulate_string.c
-	gcc -c manipulate_string.c
+./obj/manipulate_string.o: ./src/manipulate_string.c
+	gcc -o ./obj/manipulate_string.o -c ./src/manipulate_string.c
 
 clean:
-	rm *.o main
+	rm ./obj/*.o main

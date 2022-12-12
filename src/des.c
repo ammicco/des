@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "des.h"
+#include "./../include/des.h"
 
 /* return a 64 bit permutation of the initial value */
 uint64_t initial_permutation(uint64_t input){

@@ -1,4 +1,4 @@
-#include "./manipulate_string.h"
+#include "./../include/manipulate_string.h"
 #include <stdio.h>
 #include <stdlib.h>
 

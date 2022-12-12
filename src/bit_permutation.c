@@ -1,4 +1,4 @@
-#include "bit_permutation.h"
+#include "./../include/bit_permutation.h"
 
 uint64_t permutation(uint64_t source, int *table, size_t bit_number, char *numbering_mode){
     const uint64_t *masks; 
