@@ -171,7 +171,13 @@ uint64_t des(uint64_t data, uint64_t key, int verbose){
         j++;
     }
         
-    fprintf(stderr, "Plain text:\t0x%lx (%s)\nKey:\t\t0x%lx (%s)\n", data, s, key, k);
+    fprintf(stderr, "Plain text:\t0x%lx (%s)", data, s);
+
+    if(verbose){
+        fprintf(stderr, "\nKey:\t\t0x%lx (%s)", key, k);
+    }
+
+    fprintf(stderr, "\n");
 
     free(s);
 
