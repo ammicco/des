@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "./../include/des.h"
 
@@ -144,12 +145,16 @@ uint64_t generate_random_key(char *file){
     int i, j = 0;
     char *s = (char *) malloc(sizeof(char) * (8 + 1));
     uint8_t tmp;
-    uint64_t key = random() | ((uint64_t) random() << 32);
+    uint32_t tk;
+    uint64_t key;
     FILE *f = fopen(file, "w");
 
     if(!s || !f){
         fputs("malloc() or fopen() error in function generate_random_key()!\nExit.\n", stderr);
     }
+
+    srand(time(NULL));
+    key = rand() | (uint64_t) rand() << 32;
 
     for(i = 7; i >= 0; i--){
         tmp = key >> (8 * i);
