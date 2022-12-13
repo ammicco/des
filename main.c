@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <strings.h>
 #include <unistd.h>
 
 #include "./include/read_file.h"
@@ -22,13 +23,7 @@ int main(int argc, char **argv){
    FILE *f, *k;
    uint64_t *input, *key, res, d;
 
-   if(argc < 2){
-      usage();
-
-      return -1;
-   }
-
-   while((c = getopt(argc, argv, "vged:")) != -1){
+   while((c = getopt(argc, argv, "hevgedh:")) != -1){
       switch(c){
          case 'v': v = 1; break; 
          case 'g': if(!argv[2]){
@@ -41,9 +36,14 @@ int main(int argc, char **argv){
             return 1;
          case 'e': type = DES_ENC; break;
          case 'd': type = DES_DEC; break;
+         case 'h': usage(); return 1;
       }
+   }
 
-      i++;
+   if(optind == argc){
+      usage();
+
+      return 1;
    }
 
    if(type == -1){
@@ -52,8 +52,8 @@ int main(int argc, char **argv){
       type = DES_ENC;
    }
 
-   f = fopen(argv[i + 1], "rb");
-   k = fopen(argv[i + 2], "rb");
+   f = fopen(argv[optind], "rb");
+   k = fopen(argv[optind + 1], "rb");
 
    input = readbit(f, 64);
    key = readbit(k, 64);

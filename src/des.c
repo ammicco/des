@@ -94,13 +94,13 @@ uint32_t sbox(uint64_t data){
     }
 
     for(i = 7; i >= 0; i--){
-        sbi[i] = (data >> (j * 6)) & 0x3f;
+        sbi[i] = (data >> (j * 6)) & 0x3f; /* 6 right bit mask */
         j++;
     }
 
     for(i = 0; i < 8; i++){
-        row = ((sbi[i] & 0x1) | ((sbi[i] >> 4) & 0x2)) & 0x3;
-        column = (sbi[i] & 0x1e) >> 1;
+        row = ((sbi[i] & 0x1) | ((sbi[i] >> 4) & 0x2 /* 0b10 */)) & 0x3; /* 2 right bit number */
+        column = (sbi[i] & 0x1e /* 0b11110*/) >> 1;
 
         switch(i){
             case 0: sbo[i] = sbox1[row][column]; break;
@@ -114,7 +114,7 @@ uint32_t sbox(uint64_t data){
             default: fputs("sbox() function error!\nExit.\n", stderr);
         }
 
-        sbo[i] &= 0xf;
+        sbo[i] &= 0xf; /* 4 right bit mask */
     }
 
     j = 0;
@@ -211,8 +211,8 @@ uint64_t des(uint64_t data, uint64_t key, int verbose, int type){
     }
 
     for(i = 0; i < 15; i++){
-        r = (uint32_t) (data & 0xffffffff);
-        l = (uint32_t) ((data >> 32) & 0xffffffff);
+        r = (uint32_t) (data & 0xffffffff); /* 32 right bit mask */
+        l = (uint32_t) ((data >> 32) & 0xffffffff); /* 32 right bit mask */
         tmpr = r;
 
         r = (pbox(sbox((roundk[ik] ^ expansion(r)))) ^ l);
@@ -238,8 +238,8 @@ uint64_t des(uint64_t data, uint64_t key, int verbose, int type){
         }
     }
 
-    r = (uint32_t) (data & 0xffffffff);
-    l = (uint32_t) ((data >> 32) & 0xffffffff);
+    r = (uint32_t) (data & 0xffffffff); /* 32 right bit mask */
+    l = (uint32_t) ((data >> 32) & 0xffffffff); /* 32 right bit mask */
     tmpr = r;
     
     l = (pbox(sbox(roundk[ik] ^ expansion(r))) ^ l); 
