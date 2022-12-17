@@ -14,6 +14,7 @@ Use this code for create your own project and have fun!
 ## Usage: 
 ``` bash 
     $ make
+      mkdir ./obj
       gcc -o ./obj/manipulate_string.o -c ./src/manipulate_string.c
       gcc -o ./obj/base64.o -c ./src/base64.c
       gcc -o ./obj/bit_permutation.o -c ./src/bit_permutation.c
@@ -21,12 +22,13 @@ Use this code for create your own project and have fun!
       gcc -o ./obj/des.o -c ./src/des.c
       gcc -o ./obj/main.o -c main.c
       gcc -o main ./obj/manipulate_string.o ./obj/base64.o ./obj/bit_permutation.o ./obj/read_file.o ./obj/des.o ./obj/main.o
-    $ ./main [-v] "data file" "key file"
+    $ ./main [-e | -d] [-v] [-o <output file>] "data file" "key file"
 ```
 To clean: 
 ``` bash
     $ make clean
       rm ./obj/*.o main
+      rmdir ./obj
 ``` 
 
 ### Example
@@ -47,13 +49,13 @@ To clean:
  - Run the test: 
   - no verbose: 
 ``` bash
-    $ ./main file key
+    $ ./main -e file key
       Plain text:     0x7465737464617461 (testdata)
       des:            0x1f411241ddcb52b4 (text: AA��R� -- base64: H0ESQd3LUrQ=)
 ``` 
   - verbose: 
 ``` bash 
-    $ ./main -v file key
+    $ ./main -v -e file key
       Plain text:     0x7465737464617461 (testdata)
       Key:            0x74657374206b6579 (test key)
       Round 1:  left - 0xff0004, right - 0x339716c4, roundkey - 0xd0be66572870

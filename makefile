@@ -1,3 +1,4 @@
+OPT = -Wall -ansi -pedantic 
 OBJS = ./obj/manipulate_string.o ./obj/base64.o ./obj/bit_permutation.o ./obj/read_file.o ./obj/des.o ./obj/main.o
 EXEC = main
 

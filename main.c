@@ -1,30 +1,45 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "./include/read_file.h"
 #include "./include/des.h"
 #include "./include/base64.h"
 
-static void usage(){
+static void usage(){                                                                   /* display help function */
    fputs("Usage: ./main [-e (encode) | -d (decode)] <data file> <key file> \n\
+              Options:\n\
               [-v (verbose)] - verbose output \n\
               [-g (generate)] [new key path] - generate new random key \n\
-              [-o (output file)] [output filename] - save the output in a file\n\
+              [-o (output file) <output filename>] - save the output in a file\n\
               [-h (help)] - display this help\n", 
    stderr);
 }
 
 int main(int argc, char **argv){
-   int c, v = 0, i = 0, j = 0, type = -1, out = 0;
-   char *s = (char *) malloc(sizeof(char) * (8 + 1));
-   char *ofn = NULL;
-   uint8_t tmp;
-   FILE *f, *k, *o;
-   uint64_t *input, *key, res, d;
+   int i = 0, j = 0, y = 0;                                                               /* variables for loops */
+   int c, type = -1, out = 0, len, v = 0;                                                 /* variables for cli args */
 
-   while((c = getopt(argc, argv, "vgedo::h")) != -1){
+   char *tmp_str = (char *) malloc(sizeof(char) * (8 + 1));                         /* string for print single des block output */
+   char *output_str;                                                                      /* string for print all the blocks (ECB) */
+   char *output_f_name = NULL;                                                            /* file name for output in a file */
+   
+   FILE *file, *k, *output_file;                                                          /* files for: encode/decode file, key file and output file */
+   
+   uint8_t tmp;                                                                           /* for read single byte from des output */
+   uint64_t *input, *key, d;                                                              /* for des things */
+
+   if(!tmp_str){                                                                          /* check if malloc return correctly */
+      fputs("tmp_str malloc() error in function main()!\nExit.\n", stderr);
+
+      return 2;
+   }
+
+   while((c = getopt(argc, argv, "vgedo:h")) != -1){                            /* parse cli args */
       switch(c){
-         case 'v': v = 1; break; 
-         case 'g': if(!argv[2]){
+         case 'v': v = 1; break;                                                          /* verbose output */
+         case 'g': if(!argv[2]){                                                          /* generate des 64 (56) bit key in a file */
                fputs("No filename specified, deafult is ./key\n", stderr);
                generate_random_key("key");
             }else{
@@ -32,70 +47,89 @@ int main(int argc, char **argv){
             }
             
             return 1;
-         case 'e': type = DES_ENC; break;
-         case 'd': type = DES_DEC; break;
-         case 'o': out = 1; ofn = optarg; break;
-         case 'h': usage(); return 1;
-         case '?': printf("Exit.\n"); return 4;
+         case 'e': type = DES_ENC; break;                                                 /* encode */
+         case 'd': type = DES_DEC; break;                                                 /* decode */
+         case 'o': out = 1; output_f_name = optarg; break;                                /* output in a file*/
+         case 'h': usage(); return 1;                                                     /* display help */
+         case '?': printf("Exit.\n"); return 4;                                    /* handle unknow options */
       }
    }
 
-   if(optind == argc || argc == 1){
-      usage();
-
+   if(optind == argc || argc == 1){                                                       /* if optrions number == argc          */
+      usage();                                                                            /* there's no file and key files       */
+                                                                                          /* specified, so display help and exit */
       return 1;
    }
 
-   if(type == -1){
-      fputs("No type specified, default is encode.\n", stderr);
+   if(type == -1){                                                                        /* if user doesn't specify encode or   */
+      fputs("No type specified, default is encode.\n", stderr);                 /* decode mode, default is encode      */
 
       type = DES_ENC;
    }
 
-   f = fopen(argv[optind], "rb");
+   file = fopen(argv[optind], "rb");                                               /* open files for data and key */
    k = fopen(argv[optind + 1], "rb");
 
-   if(!f || !k){
-         fputs("malloc() error in function main()!\nExit.\n", stderr);
+   if(!file || !k){                                                                                /* check id fopen returns correctly */
+         fputs("file or key malloc() error in function main()!\nExit.\n", stderr);
+
+         return 2;
+   }
+
+   input = read_all_file(file, 64);                            /* read all the data file and save in 64 bit chunk array (last cell is 0) */
+   key = readNbit(k, 64);                                /* read 64 bit from the key's file                          */
+
+   if(out == 1){                                                          /* if user output in file, calculate the file length */
+      fseek(file, 0, SEEK_END);
+      len = ftell(file) + 1;           
+
+      output_str = (char *) malloc(8 * len);                         /* and allocate space for the output string to save in file */                       
+   } 
+
+   while(input[y] != 0){                                                   /* execute des ECB, encode/decode every block and concatenate all */
+      j = 0;
+
+      d = des(input[y], *(key), v, type);    /* execute des on 64 bit block */
+
+      for(i = 7; i >= 0; i--){                                             /* transofrm des output in a string */
+         tmp = d >> (8 * i);
+
+         tmp_str[j] = (char) tmp;
+         j++;
+      }
+
+      printf("Output:\t\t0x%lx (text: %s -- base64: %s)\n", 
+                     d, 
+                     tmp_str, 
+                     encode((const unsigned char *) tmp_str, 8)
+      );
+
+      if(out == 1){                                                        /* if have to save output in file, concatenate the single block string */
+         strcat(output_str, tmp_str);
+      }
+
+      y++;
+   }
+
+   free(tmp_str);
+
+   if(out == 1){                    
+      if(!output_f_name){                                                                 /* if user not specify output file name, exit */
+         fputs("No filename specified for output, default!\nUse \"-o <output file name>\"\nExit.\n", stderr);
+
+         return 3;
+      }
+
+      output_file = fopen(output_f_name, "wb");                                     /* open output file */                        
+
+      if(!output_file){                                                                               /* check if fopen returns correctly */
+         fputs("output_file malloc() error in function main()!\nExit.\n", stderr);
 
          return 2;
       }
 
-   input = readbit(f, 64);
-   key = readbit(k, 64);
-
-   d = des(*(input), *(key), v, type);
-
-   for(i = 7; i >= 0; i--){
-      tmp = d >> (8 * i);
-
-      s[j] = (char) tmp;
-      j++;
+      fputs(output_str, output_file);                                                  /* write output file */
    }
 
-   printf("Output:\t\t0x%lx (text: %s -- base64: %s)\n", d, s, encode((const unsigned char *) s, 8));
-
-   if(out == 1){
-      if(!ofn){
-         if(type == DES_DEC){
-            fputs("No filename specified for output, default is \"out.dec\"", stderr);
-         }else{
-            fputs("No filename specified for output, default is \"out.enc\"", stderr);
-         }
-      }
-
-      o = fopen(ofn ? ofn : "out", "wb");
-
-      if(!o){
-         fputs("malloc() error in function main()!\nExit.\n", stderr);
-
-         return 2;
-      }
-
-      fputs(s, o);
-   }
-
-   free(s);
-
-   return 0;
+   return 0;                                                                                     /* finally return */
 }
