@@ -103,6 +103,9 @@ int main(int argc, char **argv){
       }
    }
 
+   fclose(file);
+   fclose(k);
+
    while(i < len / 8){                                                   /* execute des ECB, encode/decode every block and concatenate all */
       x = 0;
 
@@ -130,8 +133,6 @@ int main(int argc, char **argv){
 
    free(tmp_str);
    fclose(output_file);
-   fclose(file);
-   fclose(k);
 
    return 0;                                                                                          /* finally return */
 }
