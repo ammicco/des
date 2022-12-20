@@ -14,7 +14,8 @@ static void usage(){                                                            
               [-v (verbose)] - verbose output \n\
               [-g (generate)] [new key path] - generate new random key \n\
               [-o (output file) <output filename>] - save the output in a file\n\
-              [-h (help)] - display this help\n", 
+              [-h (help)] - display this help\n\n\
+Default DES mode is ECB.\n", 
    stderr);
 }
 
@@ -22,8 +23,7 @@ int main(int argc, char **argv){
    int i = 0, j = 0, x = 0;                                                               /* variables for loops */
    int c, type = -1, out = 0, v = 0;                                                      /* variables for cli args */
 
-   char *tmp_str = (char *) malloc(sizeof(char) * (8 + 1));                         /* string for print single des block output */
-   char *output_str;                                                                      /* string for print all the blocks (ECB) */
+   char *tmp_str = (char *) malloc(sizeof(char) * (8 + 1));                         /* string for print single des block output */                                                                    /* string for print all the blocks (ECB) */
    char *output_f_name = NULL;                                                            /* file name for output in a file */
    
    FILE *file, *k, *output_file;                                                          /* files for: encode/decode file, key file and output file */
@@ -82,12 +82,10 @@ int main(int argc, char **argv){
    input = read_all_file(file, 64);                            /* read all the data file and save in 64 bit chunk array (last cell is 0) */
    key   = readNbit(k, 64);                              /* read 64 bit from the key's file                          */
 
-   if(out == 1){                                                          /* if user output in file, calculate the file length */
-      fseek(file, 0, SEEK_END);
-      len = ftell(file);           
+   fseek(file, 0, SEEK_END);                          /* if user output in file, calculate the file length */  
+   len = ftell(file);
 
-      output_str = (char *) malloc(8 * len);                         /* and allocate space for the output string to save in file */                       
-   
+   if(out == 1){                                                                                  
       if(!output_f_name){                                                                             /* if user not specify output file name, exit */
          fputs("No filename specified for output, default!\nUse \"-o <output file name>\"\nExit.\n", stderr);
 
@@ -106,7 +104,7 @@ int main(int argc, char **argv){
    fclose(file);
    fclose(k);
 
-   while(i < len / 8){                                                   /* execute des ECB, encode/decode every block and concatenate all */
+   while(i < (len / 8) + (len % 8 == 0 ? 0 : 1)){                                                   /* execute des ECB, encode/decode every block and concatenate all */
       x = 0;
 
       d = des(input[i], *(key), v, type);    /* execute des on 64 bit block */
@@ -132,7 +130,10 @@ int main(int argc, char **argv){
    }
 
    free(tmp_str);
-   fclose(output_file);
+   
+   if(out == 1){
+      fclose(output_file);
+   }
 
    return 0;                                                                                          /* finally return */
 }
