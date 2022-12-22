@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -104,10 +105,29 @@ int main(int argc, char **argv){
    fclose(file);
    fclose(k);
 
-   while(i < (len / 8) + (len % 8 == 0 ? 0 : 1)){                                                   /* execute des ECB, encode/decode every block and concatenate all */
-      x = 0;
+   if(out == 1){
+      printf("Writing ...\n");
+   }
 
+   while(i < (len / 8) + (len % 8 == 0 ? 0 : 1)){                                                   /* execute des ECB, encode/decode every block and concatenate all */
       d = des(input[i], *(key), v, type);    /* execute des on 64 bit block */
+
+      if(out == 0){
+         for(j = 7; j >= 0; j--){                                             /* transofrm des output in a string */
+            tmp = input[i] >> (8 * j);
+
+            tmp_str[x] = (char) tmp;
+            x++;
+         }    
+
+         x = 0;  
+
+         printf("input:\t\t0x%lx (%s)\n", 
+                        input[i], 
+                        tmp_str
+         );
+
+      }
 
       for(j = 7; j >= 0; j--){                                             /* transofrm des output in a string */
          tmp = d >> (8 * j);
@@ -115,12 +135,16 @@ int main(int argc, char **argv){
          tmp_str[x] = (char) tmp;
          x++;
       }
+      
+      x = 0;
 
-      printf("Output:\t\t0x%lx (text: %s -- base64: %s)\n", 
-                     d, 
-                     tmp_str, 
-                     encode((const unsigned char *) tmp_str, 8)
-      );
+      if(out == 0){
+         printf("Output:\t\t0x%lx (text: %s -- base64: %s)\n", 
+                        d, 
+                        tmp_str, 
+                        encode((const unsigned char *) tmp_str, 8)
+         );
+      }
 
       if(out == 1){                                                        /* if have to save output in file, concatenate the single block string */
          fwrite(tmp_str, 8, 1, output_file);
@@ -132,6 +156,7 @@ int main(int argc, char **argv){
    free(tmp_str);
    
    if(out == 1){
+      printf("Write OK!\n");
       fclose(output_file);
    }
 

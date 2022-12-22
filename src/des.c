@@ -174,32 +174,26 @@ uint64_t generate_random_key(char *file){
 /* use all the previus function to encode with des */
 uint64_t des(uint64_t data, uint64_t key, int verbose, int type){
     int i, j = 0, ik; 
-    char *s = (char *) malloc(sizeof(char) * (8 + 1));
     char *k = (char *) malloc(sizeof(char) * (8 + 1));
     uint8_t tmps, tmpk;
     uint64_t *roundk, f = 0;
     uint32_t r, l, tmpr;
 
-    if(!s || !k){
+    if(!k){
         fputs("malloc() error in function des()!\nExit.\n", stderr);
     }
 
     for(i = 7; i >= 0; i--){
-        tmps = data >> (8 * i);
         tmpk = key >> (8 * i);
 
-        s[j] = (char) tmps;
         k[j] = (char) tmpk;
         j++;
     }
-    
-    printf("input:\t\t0x%lx (%s)\n", data, s);
 
     if(verbose){
         fprintf(stderr, "Key:\t\t0x%lx (%s)\n", key, k);
     }
 
-    free(s);
     free(k);
 
     data = initial_permutation(data);
